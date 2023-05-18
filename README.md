@@ -1,2 +1,2 @@
 # ADVSWPROJECTBOARDJOB
-Advance Software Project Job Board Platform
+Advance Software Project Job Board API Platform
