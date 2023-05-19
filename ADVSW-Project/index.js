@@ -26,5 +26,5 @@ app.use('/board', boardRoutes);
 
 // listen to the port
 app.listen(port, ()=>{
-    console.log(`Express is running at port ${port}`);
+    console.log(`NodeJS is running at port ${port}`);
 });
