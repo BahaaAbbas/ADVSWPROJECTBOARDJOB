@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const boardController = require('../controllers/board.controller');
+
 /*************************General  API for Board API********************************** */
 
 // get all joblists

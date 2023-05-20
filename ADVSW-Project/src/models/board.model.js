@@ -1,5 +1,6 @@
 var dbConn  = require('../../config/db.config');
 
+
 var JobListingboard = function(joblist){
     this.listing_id     =   joblist.listing_id;
     this.title          =   joblist.title;
