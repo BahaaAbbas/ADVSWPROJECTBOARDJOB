@@ -326,9 +326,6 @@ JobListingboard.checkseekerandsearchEmployerid = (seeker_id, employers_id, resul
 
 
 //seeker search job by salary range 
-//router.get('/seeker/:seeker_id/jobls/emp/:salary_range',boardController.checkseekerandsearchsalary_Range);
-// File: board.model.js
-
 JobListingboard.checkseekerandsearchsalary_Range = (seeker_id, salary_range, result) => {
     dbConn.query('SELECT * FROM jobseekers WHERE seeker_id = ?', seeker_id, (err, seekerRes) => {
       if (err) {
@@ -365,5 +362,204 @@ JobListingboard.checkseekerandsearchsalary_Range = (seeker_id, salary_range, res
     return { min: minSalary, max: maxSalary };
   }
   
+
+
+ //seeker get all his saved 
+ JobListingboard.querySavedJobsBySeekerbahaa = (seeker_id, result) => {
+    dbConn.query('SELECT * FROM jobseekers WHERE seeker_id = ?', seeker_id, (err, seekerRes) => {
+      if (err) {
+        console.log('Error while checking seeker:', err);
+        result(err, null);
+      } else {
+        if (seekerRes.length === 0) {
+          // If the seeker does not exist, return false
+          result(null, false);
+        } else {
+            dbConn.query('SELECT savedjobs.save_id, savedjobs.seeker_id, joblistings.*, employers.employer_id, employers.name, employers.contact_info FROM savedjobs INNER JOIN joblistings ON savedjobs.listing_id = joblistings.listing_id INNER JOIN employers ON joblistings.employer_id = employers.employer_id WHERE savedjobs.seeker_id = ? GROUP BY joblistings.listing_id', seeker_id, (err, searchRes) => {
+
+          if (err) {
+              console.log('Error while querying saved jobs:', err);
+              result(err, null);
+            } else {
+              if (!searchRes || searchRes.length === 0) {
+                result(null, null);
+              } else {
+                console.log('Search results:', searchRes);
+                result(null, searchRes);
+              }
+            }
+          });
+        }
+      }
+    });
+  };
+  
+
+
+//seeker submit an Application Submission 
+//router.get('/seeker/:seeker_id/app/:listing_id',boardController.SeekerSubmitAPP);
+JobListingboard.SeekerSubmitAPP = (seeker_id, listing_id, result) => {
+  dbConn.query('SELECT * FROM jobseekers WHERE seeker_id = ?', seeker_id, (err, seekerRes) => {
+    if (err) {
+      console.log('Error while checking seeker:', err);
+      result(err, null);
+    } else {
+      if (seekerRes.length === 0) {
+        // If the seeker does not exist, return false
+        result(null, false);
+      } else {
+        dbConn.query('SELECT employers.* FROM employers INNER JOIN joblistings ON employers.employer_id = joblistings.employer_id WHERE joblistings.listing_id = ?', listing_id, (err, employerRes) => {
+          if (err) {
+            console.log('Error while querying employers:', err);
+            result(err, null);
+          } else {
+            const { contact_info, ...seekerData } = seekerRes[0];
+
+            const combinedData = [
+              {
+                ...employerRes[0],
+                ...seekerData
+              }
+            ];
+            console.log('Concatenated jobRes:', combinedData);
+            result(null, combinedData);
+            
+          }
+        });
+      }
+    }
+  });
+};
+
+
+
+//Emp get all application 
+//router.get('/Emp/:employer_id/app', boardController.EmployerGetHisallApps);
+// Get all job listings for this Employer
+JobListingboard.EmployerGetHisallAppsmodel = (id, result) => {
+  dbConn.query('SELECT * FROM jobapp WHERE employer_id = ?', id, (err, res) => {
+    if (err) {
+      console.log('Error while fetching job applications', err);
+      result(err, null);
+    } else {
+      console.log('id=', id);
+      if (res.length === 0) {
+        console.log('No job applications found');
+        result(null, null);
+      } else {
+        console.log('Job applications fetched successfully');
+        result(null, res);
+      }
+    }
+  });
+};
+
+//Emp get applcation based on employer_id and listing_id
+//router.get('/Emp/:employer_id/app/:listing_id', boardController.EmployerGetsingleApps);
+JobListingboard.EmployerGetsingleAppsmodel = (employerId, listingId, result) => {
+  dbConn.query('SELECT * FROM jobapp WHERE employer_id = ? AND listing_id = ?', [employerId, listingId], (err, res) => {
+    if (err) {
+      console.log('Error while fetching job applications', err);
+      result(err, null);
+    } else {
+      console.log('Employer ID:', employerId);
+      console.log('Listing ID:', listingId);
+      if (res.length === 0) {
+        console.log('No job applications found');
+        result(null, null);
+      } else {
+        console.log('Job applications fetched successfully');
+        result(null, res);
+      }
+    }
+  });
+};
+
+//Seeker get all application
+//router.post('/seeker/:seeker_id/app',boardController.SeekergethisallApps);
+
+JobListingboard.SeekergethisallAppsmodel = (id, result) => {
+  dbConn.query('SELECT * FROM jobapp WHERE seeker_id = ?', id, (err, res) => {
+    if (err) {
+      console.log('Error while fetching job applications', err);
+      result(err, null);
+    } else {
+      console.log('id=', id);
+      if (res.length === 0) {
+        console.log('No job applications found');
+        result(null, null);
+      } else {
+        console.log('Job applications fetched successfully');
+        result(null, res);
+      }
+    }
+  });
+};
+
+
+//Seeker get applcation based on seeker_id and listing_id
+//router.get('/seeker/:seeker_id/app/:listing_id',boardController.SeekerGetsingleApps);
+JobListingboard.SeekerGetsingleAppsmodel = (seekerId, listingId, result) => {
+  dbConn.query('SELECT * FROM jobapp WHERE seeker_id = ? AND listing_id = ?', [seekerId, listingId], (err, res) => {
+    if (err) {
+      console.log('Error while fetching job applications', err);
+      result(err, null);
+    } else {
+      console.log('seeker ID:', seekerId);
+      console.log('Listing ID:', listingId);
+      if (res.length === 0) {
+        console.log('No job applications found');
+        result(null, null);
+      } else {
+        console.log('Job applications fetched successfully');
+        result(null, res);
+      }
+    }
+  });
+};
+
+//Seeker delete his application based on seeker_id and listing_id
+//router.get('/seeker/:seeker_id/app/:listing_id/delete',boardController.SeekerdeletesingleApps);
+JobListingboard.SeekerdeletesingleAppsmodel = (seekerId, listingId, result) => {
+  dbConn.query('DELETE FROM jobapp WHERE seeker_id = ? AND listing_id = ?', [seekerId, listingId], (err, res) => {
+    if (err) {
+      console.log('Error while deleting job applications', err);
+      result(err, null);
+    } else {
+      console.log('Seeker ID:', seekerId);
+      console.log('Listing ID:', listingId);
+      if (res.affectedRows === 0) {
+        console.log('No job applications found');
+        result(null, null);
+      } else {
+        console.log('Job applications deleted successfully');
+        result(null, res);
+      }
+    }
+  });
+};
+
+
+//Employer approved seeker application based on seeker_id and listing_id 
+//router.delete('/Emp/:employer_id/app/:seeker_id/approve/:listing_id',boardController.EmployerApprovedApp);
+JobListingboard.EmployerApprovedDeclineAppmodel = (employerId, seekerId, listingId, result) => {
+  dbConn.query('SELECT jobapp.*, jobseekers.* FROM jobapp INNER JOIN jobseekers ON jobapp.seeker_id = jobseekers.seeker_id WHERE jobapp.employer_id = ? AND jobapp.seeker_id = ? AND jobapp.listing_id = ?', [employerId, seekerId, listingId], (err, res) => {
+    if (err) {
+      console.log('Error while checking job applications', err);
+      result(err, null);
+    } else {
+      if (res.length === 0) {
+        console.log('No job applications found for this employer, seeker, and listing');
+        result(null, null);
+      } else {
+          
+            result(null, res);
+      }
+    }
+  });
+};
+
+//Employer decline seeker application based on seeker_id and listing_id 
+
 
 module.exports = JobListingboard;
